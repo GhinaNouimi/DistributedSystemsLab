@@ -2,6 +2,7 @@ package RMI;
 
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
+import java.util.List;
 
 public class RMIServerLauncher {
 
@@ -10,27 +11,53 @@ public class RMIServerLauncher {
             Registry registry =
                     LocateRegistry.createRegistry(1099);
 
-            RemoteTaskService serverA =
-                    new RemoteTaskServiceImpl("RMI Server A", true);
+            List<RMIServerConfig> serverConfigs = List.of(
+                    new RMIServerConfig("ServerA", "RMI Server A", true),
+                    new RMIServerConfig("ServerB", "RMI Server B", false),
+                    new RMIServerConfig("ServerC", "RMI Server C", true),
+                    new RMIServerConfig("ServerD", "RMI Server D", false),
+                    new RMIServerConfig("ServerE", "RMI Server E", true)
+            );
 
-            RemoteTaskService serverB =
-                    new RemoteTaskServiceImpl("RMI Server B", false);
+            for (RMIServerConfig config : serverConfigs) {
+                RemoteTaskService server =
+                        new RemoteTaskServiceImpl(
+                                config.getServerName(),
+                                config.isHealthy()
+                        );
 
-            RemoteTaskService serverC =
-                    new RemoteTaskServiceImpl("RMI Server C", true);
+                registry.rebind(
+                        config.getRegistryName(),
+                        server
+                );
 
-            registry.rebind("ServerA", serverA);
-            registry.rebind("ServerB", serverB);
-            registry.rebind("ServerC", serverC);
+                printServerStatus(
+                        config.getRegistryName(),
+                        server
+                );
+            }
 
             System.out.println("RMI Registry started on port 1099");
-            System.out.println("ServerA registered as healthy");
-            System.out.println("ServerB registered as DOWN");
-            System.out.println("ServerC registered as healthy");
             System.out.println("RMI Servers are ready...");
 
         } catch (Exception exception) {
             exception.printStackTrace();
         }
+    }
+
+    private static void printServerStatus(
+            String registryName,
+            RemoteTaskService server
+    ) throws Exception {
+
+        String status = server.isHealthy()
+                ? "healthy"
+                : "DOWN";
+
+        System.out.println(
+                registryName
+                        + " registered as "
+                        + status
+        );
     }
 }
