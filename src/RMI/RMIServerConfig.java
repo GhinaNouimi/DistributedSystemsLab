@@ -6,17 +6,20 @@ public class RMIServerConfig {
     private final String serverName;
     private final boolean healthy;
     private final int weight;
+    private final int failureRate;
 
     public RMIServerConfig(
             String registryName,
             String serverName,
             boolean healthy,
-            int weight
+            int weight,
+            int failureRate
     ) {
         this.registryName = registryName;
         this.serverName = serverName;
         this.healthy = healthy;
         this.weight = weight;
+        this.failureRate = failureRate;
     }
 
     public String getRegistryName() {
@@ -33,5 +36,9 @@ public class RMIServerConfig {
 
     public int getWeight() {
         return weight;
+    }
+
+    public int getFailureRate() {
+        return failureRate;
     }
 }

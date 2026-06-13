@@ -14,11 +14,11 @@ public class RMIWeightedRoundRobinClient {
                     LocateRegistry.getRegistry("localhost", 1099);
 
             List<RMIServerConfig> serverConfigs = List.of(
-                    new RMIServerConfig("ServerA", "RMI Server A", true, 4),
-                    new RMIServerConfig("ServerB", "RMI Server B", true, 2),
-                    new RMIServerConfig("ServerC", "RMI Server C", true, 1),
-                    new RMIServerConfig("ServerD", "RMI Server D", true, 3),
-                    new RMIServerConfig("ServerE", "RMI Server E", true, 2)
+                    new RMIServerConfig("ServerA", "RMI Server A", true, 4, 0),
+                    new RMIServerConfig("ServerB", "RMI Server B", true, 2, 0),
+                    new RMIServerConfig("ServerC", "RMI Server C", true, 1, 0),
+                    new RMIServerConfig("ServerD", "RMI Server D", true, 3, 0),
+                    new RMIServerConfig("ServerE", "RMI Server E", true, 2, 0)
             );
 
             List<RMIWeightedServerEntry> weightedServers =

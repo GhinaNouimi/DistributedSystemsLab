@@ -9,7 +9,6 @@ public class RMIServerLauncher {
     public static void main(String[] args) {
 
         try {
-
             Registry registry =
                     LocateRegistry.createRegistry(1099);
 
@@ -18,31 +17,36 @@ public class RMIServerLauncher {
                             "ServerA",
                             "RMI Server A",
                             true,
-                            4
+                            4,
+                            10
                     ),
                     new RMIServerConfig(
                             "ServerB",
                             "RMI Server B",
                             true,
-                            2
+                            2,
+                            70
                     ),
                     new RMIServerConfig(
                             "ServerC",
                             "RMI Server C",
                             true,
-                            1
+                            1,
+                            15
                     ),
                     new RMIServerConfig(
                             "ServerD",
                             "RMI Server D",
                             true,
-                            3
+                            3,
+                            40
                     ),
                     new RMIServerConfig(
                             "ServerE",
                             "RMI Server E",
                             true,
-                            2
+                            2,
+                            5
                     )
             );
 
@@ -51,7 +55,8 @@ public class RMIServerLauncher {
                 RemoteTaskService server =
                         new RemoteTaskServiceImpl(
                                 config.getServerName(),
-                                config.isHealthy()
+                                config.isHealthy(),
+                                config.getFailureRate()
                         );
 
                 registry.rebind(
@@ -59,11 +64,7 @@ public class RMIServerLauncher {
                         server
                 );
 
-                printServerStatus(
-                        config.getRegistryName(),
-                        server,
-                        config.getWeight()
-                );
+                printServerStatus(config);
             }
 
             System.out.println();
@@ -80,22 +81,23 @@ public class RMIServerLauncher {
     }
 
     private static void printServerStatus(
-            String registryName,
-            RemoteTaskService server,
-            int weight
-    ) throws Exception {
+            RMIServerConfig config
+    ) {
 
         String status =
-                server.isHealthy()
+                config.isHealthy()
                         ? "healthy"
                         : "DOWN";
 
         System.out.println(
-                registryName
+                config.getRegistryName()
                         + " registered as "
                         + status
                         + " | weight="
-                        + weight
+                        + config.getWeight()
+                        + " | failureRate="
+                        + config.getFailureRate()
+                        + "%"
         );
     }
 }
