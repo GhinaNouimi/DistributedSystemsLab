@@ -1,4 +1,4 @@
-package RMI;
+package faulttolerance;
 
 public class CircuitBreaker {
 

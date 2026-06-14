@@ -1,4 +1,6 @@
-package RMI;
+package remote;
+
+import core.model.RMIServerConfig;
 
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;

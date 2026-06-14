@@ -1,11 +1,14 @@
-package RMI;
+package demo;
+
+import loadbalancer.RMIAdaptiveLoadBalancer;
+import remote.RemoteTaskService;
 
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.util.ArrayList;
 import java.util.List;
 
-public class RMIPowerOfTwoChoicesClient {
+public class RMIAdaptiveClient {
 
     public static void main(String[] args) {
 
@@ -32,16 +35,16 @@ public class RMIPowerOfTwoChoicesClient {
                 servers.add(server);
 
                 System.out.println(
-                        registryName +
-                                " loaded from RMI Registry"
+                        registryName
+                                + " loaded from RMI Registry"
                 );
             }
 
-            RMIPowerOfTwoChoicesLoadBalancer loadBalancer =
-                    new RMIPowerOfTwoChoicesLoadBalancer(servers);
+            RMIAdaptiveLoadBalancer loadBalancer =
+                    new RMIAdaptiveLoadBalancer(servers);
 
             for (int requestNumber = 1;
-                 requestNumber <= 10;
+                 requestNumber <= 15;
                  requestNumber++) {
 
                 final int currentRequest = requestNumber;
@@ -59,6 +62,7 @@ public class RMIPowerOfTwoChoicesClient {
                                 );
 
                         System.out.println(response);
+                        System.out.println();
 
                     } catch (Exception exception) {
                         exception.printStackTrace();
@@ -75,6 +79,8 @@ public class RMIPowerOfTwoChoicesClient {
                 });
 
                 thread.start();
+
+                Thread.sleep(300);
             }
 
         } catch (Exception exception) {

@@ -1,15 +1,23 @@
-package RMI;
+package demo;
+
+import loadbalancer.RMILeastConnectionsLoadBalancer;
+import remote.RemoteTaskService;
 
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.util.List;
 
-public class RMIRoundRobinClient {
+public class RMILeastConnectionsClient {
 
     public static void main(String[] args) {
+
         try {
+
             Registry registry =
-                    LocateRegistry.getRegistry("localhost", 1099);
+                    LocateRegistry.getRegistry(
+                            "localhost",
+                            1099
+                    );
 
             RemoteTaskService serverA =
                     (RemoteTaskService)
@@ -24,13 +32,20 @@ public class RMIRoundRobinClient {
                             registry.lookup("ServerC");
 
             List<RemoteTaskService> servers =
-                    List.of(serverA, serverB, serverC);
+                    List.of(
+                            serverA,
+                            serverB,
+                            serverC
+                    );
 
-            RMIRoundRobinLoadBalancer loadBalancer =
-                    new RMIRoundRobinLoadBalancer(servers);
+            RMILeastConnectionsLoadBalancer
+                    loadBalancer =
+                    new RMILeastConnectionsLoadBalancer(
+                            servers
+                    );
 
             for (int requestNumber = 1;
-                 requestNumber <= 9;
+                 requestNumber <= 10;
                  requestNumber++) {
 
                 RemoteTaskService selectedServer =
@@ -38,7 +53,8 @@ public class RMIRoundRobinClient {
 
                 String response =
                         selectedServer.processRequest(
-                                "Request " + requestNumber
+                                "Request "
+                                        + requestNumber
                         );
 
                 System.out.println(response);

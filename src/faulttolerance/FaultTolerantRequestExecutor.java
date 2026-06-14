@@ -1,4 +1,6 @@
-package RMI;
+package faulttolerance;
+
+import remote.RemoteTaskService;
 
 import java.rmi.RemoteException;
 import java.util.HashMap;

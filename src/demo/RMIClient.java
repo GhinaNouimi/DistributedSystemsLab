@@ -1,4 +1,6 @@
-package RMI;
+package demo;
+
+import remote.RemoteTaskService;
 
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;

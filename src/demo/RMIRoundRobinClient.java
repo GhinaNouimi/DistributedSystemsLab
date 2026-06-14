@@ -1,10 +1,13 @@
-package RMI;
+package demo;
+
+import loadbalancer.RMIRoundRobinLoadBalancer;
+import remote.RemoteTaskService;
 
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.util.List;
 
-public class RMIHealthAwareClient {
+public class RMIRoundRobinClient {
 
     public static void main(String[] args) {
         try {
@@ -26,15 +29,15 @@ public class RMIHealthAwareClient {
             List<RemoteTaskService> servers =
                     List.of(serverA, serverB, serverC);
 
-            RMIHealthAwareLoadBalancer loadBalancer =
-                    new RMIHealthAwareLoadBalancer(servers);
+            RMIRoundRobinLoadBalancer loadBalancer =
+                    new RMIRoundRobinLoadBalancer(servers);
 
             for (int requestNumber = 1;
                  requestNumber <= 9;
                  requestNumber++) {
 
                 RemoteTaskService selectedServer =
-                        loadBalancer.getNextHealthyServer();
+                        loadBalancer.getNextServer();
 
                 String response =
                         selectedServer.processRequest(

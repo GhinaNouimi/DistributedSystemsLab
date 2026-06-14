@@ -1,4 +1,4 @@
-package RMI;
+package core.model;
 
 public class RMIServerConfig {
 

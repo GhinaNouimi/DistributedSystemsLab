@@ -1,4 +1,6 @@
-package RMI;
+package core.model;
+
+import remote.RemoteTaskService;
 
 public class RMIWeightedServerEntry {
 

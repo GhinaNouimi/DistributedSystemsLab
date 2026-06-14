@@ -1,4 +1,7 @@
-package RMI;
+package demo;
+
+import faulttolerance.FaultTolerantRequestExecutor;
+import remote.RemoteTaskService;
 
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;

@@ -1,4 +1,7 @@
-package RMI;
+package loadbalancer;
+
+import core.model.RMIWeightedServerEntry;
+import remote.RemoteTaskService;
 
 import java.rmi.RemoteException;
 import java.util.ArrayList;
