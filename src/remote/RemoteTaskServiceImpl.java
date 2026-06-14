@@ -138,4 +138,15 @@ public class RemoteTaskServiceImpl
 
         return totalResponseTime / completedRequests;
     }
+
+    @Override
+    public long heartbeat() throws RemoteException {
+        if (!healthy) {
+            throw new RemoteException(
+                    serverName + " is not healthy"
+            );
+        }
+
+        return System.currentTimeMillis();
+    }
 }

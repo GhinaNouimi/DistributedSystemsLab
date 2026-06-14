@@ -31,4 +31,5 @@ public interface RemoteTaskService extends Remote {
 
     long getAverageResponseTime()
             throws RemoteException;
+    long heartbeat() throws RemoteException;
 }
