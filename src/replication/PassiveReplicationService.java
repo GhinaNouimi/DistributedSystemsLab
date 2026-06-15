@@ -19,26 +19,41 @@ public class PassiveReplicationService {
     }
 
     public void write(String operation) {
-        try {
-            System.out.println(
-                    "Leader handling operation..."
-            );
+        int maxAttempts = followers.size() + 1;
+        int attempts = 0;
 
-            String leaderResponse =
-                    leader.processRequest(operation);
+        while (attempts < maxAttempts) {
+            try {
+                System.out.println("Leader handling operation...");
 
-            System.out.println(leaderResponse);
+                String leaderResponse =
+                        leader.processRequest(operation);
 
-            replicateToFollowers(operation);
+                if (isFailedResponse(leaderResponse)) {
+                    throw new RuntimeException(leaderResponse);
+                }
 
-        } catch (Exception exception) {
-            System.out.println(
-                    "Leader failed -> starting failover"
-            );
+                System.out.println(leaderResponse);
 
-            promoteNewLeader();
+                replicateToFollowers(operation);
 
-            write(operation);
+                return;
+
+            } catch (Exception exception) {
+                attempts++;
+
+                System.out.println(
+                        "Leader failed -> starting failover"
+                );
+
+                if (attempts >= maxAttempts) {
+                    throw new RuntimeException(
+                            "Passive replication failed: no available leader"
+                    );
+                }
+
+                promoteNewLeader();
+            }
         }
     }
 
@@ -50,9 +65,16 @@ public class PassiveReplicationService {
                                 + follower.getServerName()
                 );
 
-                follower.processRequest(
-                        "REPLICA COPY: " + operation
-                );
+                String response =
+                        follower.processRequest(
+                                "REPLICA COPY: " + operation
+                        );
+
+                if (isFailedResponse(response)) {
+                    System.out.println(
+                            "Follower replication failed"
+                    );
+                }
 
             } catch (Exception exception) {
                 System.out.println(
@@ -77,9 +99,12 @@ public class PassiveReplicationService {
                             + " promoted as new Leader"
             );
         } catch (Exception exception) {
-            System.out.println(
-                    "New leader promoted"
-            );
+            System.out.println("New leader promoted");
         }
+    }
+
+    private boolean isFailedResponse(String response) {
+        return response != null
+                && response.toLowerCase().contains("failed");
     }
 }

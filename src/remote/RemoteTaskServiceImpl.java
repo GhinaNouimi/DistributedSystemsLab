@@ -9,7 +9,7 @@ public class RemoteTaskServiceImpl
         implements RemoteTaskService {
 
     private final String serverName;
-    private final boolean healthy;
+    private volatile boolean healthy;
     private final int failureRate;
 
     private int activeRequests;
@@ -42,6 +42,14 @@ public class RemoteTaskServiceImpl
         long startTime = System.currentTimeMillis();
 
         try {
+            if (!healthy) {
+                failedRequests++;
+
+                throw new RemoteException(
+                        serverName + " is DOWN and cannot process request"
+                );
+            }
+
             int processingTime =
                     500 + random.nextInt(2000);
 
@@ -94,6 +102,12 @@ public class RemoteTaskServiceImpl
     }
 
     @Override
+    public void setHealthy(boolean healthy)
+            throws RemoteException {
+        this.healthy = healthy;
+    }
+
+    @Override
     public synchronized int getActiveRequests()
             throws RemoteException {
         return activeRequests;
@@ -140,7 +154,9 @@ public class RemoteTaskServiceImpl
     }
 
     @Override
-    public long heartbeat() throws RemoteException {
+    public long heartbeat()
+            throws RemoteException {
+
         if (!healthy) {
             throw new RemoteException(
                     serverName + " is not healthy"

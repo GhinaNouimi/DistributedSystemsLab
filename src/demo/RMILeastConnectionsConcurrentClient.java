@@ -5,6 +5,7 @@ import remote.RemoteTaskService;
 
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
+import java.util.ArrayList;
 import java.util.List;
 
 public class RMILeastConnectionsConcurrentClient {
@@ -29,6 +30,8 @@ public class RMILeastConnectionsConcurrentClient {
 
             RMILeastConnectionsLoadBalancer loadBalancer =
                     new RMILeastConnectionsLoadBalancer(servers);
+
+            List<Thread> threads = new ArrayList<>();
 
             for (int requestNumber = 1;
                  requestNumber <= 10;
@@ -64,8 +67,18 @@ public class RMILeastConnectionsConcurrentClient {
                     }
                 });
 
+                threads.add(thread);
                 thread.start();
             }
+
+            for (Thread thread : threads) {
+                thread.join();
+            }
+
+            System.out.println();
+            System.out.println(
+                    "Least Connections concurrent demo finished."
+            );
 
         } catch (Exception exception) {
             exception.printStackTrace();

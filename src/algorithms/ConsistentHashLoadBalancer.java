@@ -10,6 +10,8 @@ import java.util.TreeMap;
 
 public class ConsistentHashLoadBalancer {
 
+    private static final int VIRTUAL_NODES = 50;
+
     private final SortedMap<Integer, ServerNode> hashRing;
 
     public ConsistentHashLoadBalancer() {
@@ -17,12 +19,20 @@ public class ConsistentHashLoadBalancer {
     }
 
     public void addServer(ServerNode server) {
-        int hash = hash(server.getName());
+        for (int i = 0; i < VIRTUAL_NODES; i++) {
+            String virtualNodeName =
+                    server.getName() + "#VN" + i;
 
-        hashRing.put(hash, server);
+            int hash = hash(virtualNodeName);
+
+            hashRing.put(hash, server);
+        }
 
         System.out.println(
-                server.getName() + " added at hash " + hash
+                server.getName()
+                        + " added with "
+                        + VIRTUAL_NODES
+                        + " virtual nodes"
         );
     }
 
@@ -50,7 +60,9 @@ public class ConsistentHashLoadBalancer {
                     MessageDigest.getInstance("MD5");
 
             byte[] bytes =
-                    digest.digest(value.getBytes(StandardCharsets.UTF_8));
+                    digest.digest(
+                            value.getBytes(StandardCharsets.UTF_8)
+                    );
 
             int hash = 0;
 
@@ -63,7 +75,10 @@ public class ConsistentHashLoadBalancer {
             return hash & 0x7fffffff;
 
         } catch (NoSuchAlgorithmException exception) {
-            throw new RuntimeException("Hash algorithm not found.", exception);
+            throw new RuntimeException(
+                    "Hash algorithm not found.",
+                    exception
+            );
         }
     }
 }

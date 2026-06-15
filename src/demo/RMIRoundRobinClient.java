@@ -5,6 +5,7 @@ import remote.RemoteTaskService;
 
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
+import java.util.ArrayList;
 import java.util.List;
 
 public class RMIRoundRobinClient {
@@ -14,20 +15,23 @@ public class RMIRoundRobinClient {
             Registry registry =
                     LocateRegistry.getRegistry("localhost", 1099);
 
-            RemoteTaskService serverA =
-                    (RemoteTaskService)
-                            registry.lookup("ServerA");
-
-            RemoteTaskService serverB =
-                    (RemoteTaskService)
-                            registry.lookup("ServerB");
-
-            RemoteTaskService serverC =
-                    (RemoteTaskService)
-                            registry.lookup("ServerC");
+            List<String> registryNames = List.of(
+                    "ServerA",
+                    "ServerB",
+                    "ServerC",
+                    "ServerD",
+                    "ServerE"
+            );
 
             List<RemoteTaskService> servers =
-                    List.of(serverA, serverB, serverC);
+                    new ArrayList<>();
+
+            for (String registryName : registryNames) {
+                servers.add(
+                        (RemoteTaskService)
+                                registry.lookup(registryName)
+                );
+            }
 
             RMIRoundRobinLoadBalancer loadBalancer =
                     new RMIRoundRobinLoadBalancer(servers);
@@ -36,16 +40,25 @@ public class RMIRoundRobinClient {
                  requestNumber <= 9;
                  requestNumber++) {
 
-                RemoteTaskService selectedServer =
-                        loadBalancer.getNextServer();
+                RemoteTaskService selectedServer = null;
 
-                String response =
-                        selectedServer.processRequest(
-                                "Request " + requestNumber
-                        );
+                try {
+                    selectedServer =
+                            loadBalancer.getNextServer();
 
-                System.out.println(response);
-                System.out.println();
+                    String response =
+                            selectedServer.processRequest(
+                                    "Request " + requestNumber
+                            );
+
+                    System.out.println(response);
+                    System.out.println();
+
+                } finally {
+                    if (selectedServer != null) {
+                        selectedServer.finishRequest();
+                    }
+                }
             }
 
         } catch (Exception exception) {

@@ -35,13 +35,15 @@ public class RMIPowerOfTwoChoicesClient {
                 servers.add(server);
 
                 System.out.println(
-                        registryName +
-                                " loaded from RMI Registry"
+                        registryName
+                                + " loaded from RMI Registry"
                 );
             }
 
             RMIPowerOfTwoChoicesLoadBalancer loadBalancer =
                     new RMIPowerOfTwoChoicesLoadBalancer(servers);
+
+            List<Thread> threads = new ArrayList<>();
 
             for (int requestNumber = 1;
                  requestNumber <= 10;
@@ -77,8 +79,18 @@ public class RMIPowerOfTwoChoicesClient {
                     }
                 });
 
+                threads.add(thread);
                 thread.start();
             }
+
+            for (Thread thread : threads) {
+                thread.join();
+            }
+
+            System.out.println();
+            System.out.println(
+                    "Power Of Two Choices demo finished."
+            );
 
         } catch (Exception exception) {
             exception.printStackTrace();

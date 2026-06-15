@@ -14,7 +14,8 @@ public class ReplicationDemo {
 
     public static void main(String[] args) {
         try {
-            Registry registry = LocateRegistry.getRegistry("localhost", 1099);
+            Registry registry =
+                    LocateRegistry.getRegistry("localhost", 1099);
 
             List<String> registryNames = List.of(
                     "ServerA", "ServerB", "ServerC", "ServerD", "ServerE"
@@ -23,24 +24,46 @@ public class ReplicationDemo {
             List<RemoteTaskService> servers = new ArrayList<>();
 
             for (String registryName : registryNames) {
-                servers.add((RemoteTaskService) registry.lookup(registryName));
+                servers.add(
+                        (RemoteTaskService) registry.lookup(registryName)
+                );
             }
 
             HeartbeatMonitor monitor = new HeartbeatMonitor();
+
             List<RemoteTaskService> healthyServers =
                     monitor.getHealthyServers(servers);
+
+            if (healthyServers.isEmpty()) {
+                System.out.println(
+                        "No healthy servers available for replication demo"
+                );
+                return;
+            }
+
+            if (healthyServers.size() < 2) {
+                System.out.println(
+                        "Passive replication needs at least 2 healthy servers"
+                );
+                return;
+            }
 
             System.out.println();
             System.out.println("========== PASSIVE REPLICATION DEMO ==========");
 
             RemoteTaskService leader = healthyServers.get(0);
+
             List<RemoteTaskService> followers =
-                    new ArrayList<>(healthyServers.subList(1, healthyServers.size()));
+                    new ArrayList<>(
+                            healthyServers.subList(1, healthyServers.size())
+                    );
 
             PassiveReplicationService passiveReplicationService =
                     new PassiveReplicationService(leader, followers);
 
-            passiveReplicationService.write("Update patient medical record");
+            passiveReplicationService.write(
+                    "Update patient medical record"
+            );
 
             System.out.println();
             System.out.println("========== ACTIVE REPLICATION DEMO ==========");

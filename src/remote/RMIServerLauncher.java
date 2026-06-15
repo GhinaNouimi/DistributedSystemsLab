@@ -25,7 +25,7 @@ public class RMIServerLauncher {
                     new RMIServerConfig(
                             "ServerB",
                             "RMI Server B",
-                            true,
+                            false,
                             2,
                             70
                     ),
@@ -39,7 +39,7 @@ public class RMIServerLauncher {
                     new RMIServerConfig(
                             "ServerD",
                             "RMI Server D",
-                            true,
+                            false,
                             3,
                             40
                     ),

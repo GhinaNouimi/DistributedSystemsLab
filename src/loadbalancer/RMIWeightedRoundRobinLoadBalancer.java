@@ -25,16 +25,7 @@ public class RMIWeightedRoundRobinLoadBalancer {
         this.weightedServers = new ArrayList<>();
 
         for (RMIWeightedServerEntry entry : serverEntries) {
-
             RemoteTaskService server = entry.getServer();
-
-            if (!server.isHealthy()) {
-                System.out.println(
-                        server.getServerName()
-                                + " is DOWN -> skipped"
-                );
-                continue;
-            }
 
             for (int i = 0; i < entry.getWeight(); i++) {
                 weightedServers.add(server);
@@ -43,7 +34,7 @@ public class RMIWeightedRoundRobinLoadBalancer {
 
         if (weightedServers.isEmpty()) {
             throw new RuntimeException(
-                    "No healthy weighted servers available."
+                    "No weighted servers available."
             );
         }
 
@@ -53,19 +44,36 @@ public class RMIWeightedRoundRobinLoadBalancer {
     public synchronized RemoteTaskService getNextServer()
             throws RemoteException {
 
-        RemoteTaskService selectedServer =
-                weightedServers.get(currentIndex);
+        int checkedServers = 0;
 
-        System.out.println(
-                "Weighted Round Robin selected -> "
-                        + selectedServer.getServerName()
+        while (checkedServers < weightedServers.size()) {
+            RemoteTaskService selectedServer =
+                    weightedServers.get(currentIndex);
+
+            currentIndex =
+                    (currentIndex + 1) % weightedServers.size();
+
+            checkedServers++;
+
+            if (selectedServer.isHealthy()) {
+                System.out.println(
+                        "Weighted Round Robin selected -> "
+                                + selectedServer.getServerName()
+                );
+
+                selectedServer.startRequest();
+
+                return selectedServer;
+            }
+
+            System.out.println(
+                    selectedServer.getServerName()
+                            + " is DOWN -> skipped"
+            );
+        }
+
+        throw new RuntimeException(
+                "No healthy weighted servers available."
         );
-
-        currentIndex =
-                (currentIndex + 1) % weightedServers.size();
-
-        selectedServer.startRequest();
-
-        return selectedServer;
     }
 }

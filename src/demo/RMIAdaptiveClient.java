@@ -43,6 +43,8 @@ public class RMIAdaptiveClient {
             RMIAdaptiveLoadBalancer loadBalancer =
                     new RMIAdaptiveLoadBalancer(servers);
 
+            List<Thread> threads = new ArrayList<>();
+
             for (int requestNumber = 1;
                  requestNumber <= 15;
                  requestNumber++) {
@@ -78,10 +80,18 @@ public class RMIAdaptiveClient {
                     }
                 });
 
+                threads.add(thread);
                 thread.start();
 
                 Thread.sleep(300);
             }
+
+            for (Thread thread : threads) {
+                thread.join();
+            }
+
+            System.out.println();
+            System.out.println("Adaptive demo finished.");
 
         } catch (Exception exception) {
             exception.printStackTrace();

@@ -2,6 +2,7 @@ package replication;
 
 import remote.RemoteTaskService;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class ActiveReplicationService {
@@ -15,8 +16,10 @@ public class ActiveReplicationService {
     }
 
     public void writeToAllReplicas(String operation) {
+        List<Thread> threads = new ArrayList<>();
+
         for (RemoteTaskService replica : replicas) {
-            new Thread(() -> {
+            Thread thread = new Thread(() -> {
                 try {
                     String response =
                             replica.processRequest(
@@ -31,7 +34,21 @@ public class ActiveReplicationService {
                             "Replica failed during active replication"
                     );
                 }
-            }).start();
+            });
+
+            threads.add(thread);
+            thread.start();
+        }
+
+        for (Thread thread : threads) {
+            try {
+                thread.join();
+            } catch (InterruptedException exception) {
+                Thread.currentThread().interrupt();
+                System.out.println(
+                        "Active replication interrupted"
+                );
+            }
         }
     }
 }

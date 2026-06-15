@@ -217,11 +217,16 @@ public class FaultTolerantRequestExecutor {
     private boolean isFailureResponse(
             String response
     ) {
+        if (response == null) {
+            return true;
+        }
+
         String lowerResponse =
                 response.toLowerCase();
 
         return lowerResponse.contains("failed")
-                || lowerResponse.contains("interrupted");
+                || lowerResponse.contains("interrupted")
+                || lowerResponse.contains("down");
     }
 
     private String fallbackResponse(

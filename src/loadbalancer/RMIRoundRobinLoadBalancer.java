@@ -23,20 +23,39 @@ public class RMIRoundRobinLoadBalancer {
         this.currentIndex = 0;
     }
 
-    public RemoteTaskService getNextServer()
+    public synchronized RemoteTaskService getNextServer()
             throws RemoteException {
 
-        RemoteTaskService selectedServer =
-                servers.get(currentIndex);
+        int checkedServers = 0;
 
-        System.out.println(
-                "Round Robin selected -> "
-                        + selectedServer.getServerName()
+        while (checkedServers < servers.size()) {
+            RemoteTaskService selectedServer =
+                    servers.get(currentIndex);
+
+            currentIndex =
+                    (currentIndex + 1) % servers.size();
+
+            checkedServers++;
+
+            if (selectedServer.isHealthy()) {
+                System.out.println(
+                        "Round Robin selected -> "
+                                + selectedServer.getServerName()
+                );
+
+                selectedServer.startRequest();
+
+                return selectedServer;
+            }
+
+            System.out.println(
+                    selectedServer.getServerName()
+                            + " is DOWN -> skipped"
+            );
+        }
+
+        throw new RuntimeException(
+                "No healthy RMI servers available."
         );
-
-        currentIndex =
-                (currentIndex + 1) % servers.size();
-
-        return selectedServer;
     }
 }

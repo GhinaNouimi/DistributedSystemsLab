@@ -14,6 +14,9 @@ public interface RemoteTaskService extends Remote {
     boolean isHealthy()
             throws RemoteException;
 
+    void setHealthy(boolean healthy)
+            throws RemoteException;
+
     int getActiveRequests()
             throws RemoteException;
 
@@ -31,5 +34,7 @@ public interface RemoteTaskService extends Remote {
 
     long getAverageResponseTime()
             throws RemoteException;
-    long heartbeat() throws RemoteException;
+
+    long heartbeat()
+            throws RemoteException;
 }

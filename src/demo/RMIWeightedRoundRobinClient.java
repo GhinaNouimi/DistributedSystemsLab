@@ -1,6 +1,5 @@
 package demo;
 
-import core.model.RMIServerConfig;
 import core.model.RMIWeightedServerEntry;
 import loadbalancer.RMIWeightedRoundRobinLoadBalancer;
 import remote.RemoteTaskService;
@@ -8,7 +7,9 @@ import remote.RemoteTaskService;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 public class RMIWeightedRoundRobinClient {
 
@@ -18,33 +19,36 @@ public class RMIWeightedRoundRobinClient {
             Registry registry =
                     LocateRegistry.getRegistry("localhost", 1099);
 
-            List<RMIServerConfig> serverConfigs = List.of(
-                    new RMIServerConfig("ServerA", "RMI Server A", true, 4, 0),
-                    new RMIServerConfig("ServerB", "RMI Server B", true, 2, 0),
-                    new RMIServerConfig("ServerC", "RMI Server C", true, 1, 0),
-                    new RMIServerConfig("ServerD", "RMI Server D", true, 3, 0),
-                    new RMIServerConfig("ServerE", "RMI Server E", true, 2, 0)
-            );
+            Map<String, Integer> serverWeights =
+                    new LinkedHashMap<>();
+
+            serverWeights.put("ServerA", 4);
+            serverWeights.put("ServerB", 2);
+            serverWeights.put("ServerC", 1);
+            serverWeights.put("ServerD", 3);
+            serverWeights.put("ServerE", 2);
 
             List<RMIWeightedServerEntry> weightedServers =
                     new ArrayList<>();
 
-            for (RMIServerConfig config : serverConfigs) {
+            for (Map.Entry<String, Integer> entry :
+                    serverWeights.entrySet()) {
+
                 RemoteTaskService server =
                         (RemoteTaskService)
-                                registry.lookup(config.getRegistryName());
+                                registry.lookup(entry.getKey());
 
                 weightedServers.add(
                         new RMIWeightedServerEntry(
                                 server,
-                                config.getWeight()
+                                entry.getValue()
                         )
                 );
 
                 System.out.println(
-                        config.getRegistryName()
+                        entry.getKey()
                                 + " loaded with weight="
-                                + config.getWeight()
+                                + entry.getValue()
                 );
             }
 

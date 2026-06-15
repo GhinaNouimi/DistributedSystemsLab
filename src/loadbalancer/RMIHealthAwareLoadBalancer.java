@@ -23,7 +23,7 @@ public class RMIHealthAwareLoadBalancer {
         this.currentIndex = 0;
     }
 
-    public RemoteTaskService getNextHealthyServer()
+    public synchronized RemoteTaskService getNextHealthyServer()
             throws RemoteException {
 
         int checkedServers = 0;
@@ -42,6 +42,8 @@ public class RMIHealthAwareLoadBalancer {
                         "Health check passed -> "
                                 + selectedServer.getServerName()
                 );
+
+                selectedServer.startRequest();
 
                 return selectedServer;
             }

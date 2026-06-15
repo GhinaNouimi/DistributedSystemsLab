@@ -48,11 +48,16 @@ public class CircuitBreaker {
 
     public synchronized void recordFailure() {
 
+        if (state == CircuitBreakerState.HALF_OPEN) {
+            state = CircuitBreakerState.OPEN;
+            openedAt = System.currentTimeMillis();
+            failureCount = failureThreshold;
+            return;
+        }
+
         failureCount++;
 
-        if (state == CircuitBreakerState.HALF_OPEN ||
-                failureCount >= failureThreshold) {
-
+        if (failureCount >= failureThreshold) {
             state = CircuitBreakerState.OPEN;
             openedAt = System.currentTimeMillis();
         }
